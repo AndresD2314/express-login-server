@@ -1,3 +1,4 @@
+
 # **Intranet Form Submission App**
 
 This project provides a setup for a form hosted on an IIS server that interacts with a Dockerized Node.js backend and a MySQL database. It saves user credentials securely in the database when the form is submitted.
@@ -49,10 +50,43 @@ This will:
 
 ### **Step 3: Host the Form on IIS**
 1. Copy the HTML form to your IIS server’s hosting directory.
-2. Ensure the form’s `<form>` tag points to the Node.js backend:
-   ```html
-   <form action="http://<NODE_SERVER_IP>:4000/save-credentials" method="POST" id="loginform">
+2. Ensure the form’s `<form>` tag or JavaScript code points to the Node.js backend. **Update the IP address in the JavaScript `submitForm` function to match the IIS server's IP.** For example:
+   ```javascript
+   async function submitForm(event) {
+       event.preventDefault();
+
+       const username = document.getElementById('username').value;
+       const password = document.getElementById('password').value;
+
+       if (!username || !password) {
+           alert("Please enter both username and password.");
+           return;
+       }
+
+       try {
+           const response = await fetch('http://<IIS_SERVER_IP>:4000/save-credentials', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({ username, password }),
+           });
+
+           if (response.ok) {
+               const result = await response.json();
+               alert(result.message || 'Credentials saved successfully.');
+           } else {
+               const error = await response.json();
+               alert(error.message || 'An error occurred.');
+           }
+       } catch (err) {
+           console.error('Error connecting to the server:', err);
+           alert('Failed to connect to the server.');
+       }
+   }
    ```
+   Replace `<IIS_SERVER_IP>` with the actual IP address of the IIS server (e.g., `192.168.124.1`).
+
 3. Open the form in your browser via the IIS server’s URL.
 
 ### **Step 4: Test the Setup**
@@ -90,7 +124,7 @@ This will:
 ### Common Issues:
 - **CORS Errors**: Ensure the Node.js backend allows requests from the IIS server origin.
 - **Port Conflicts**: Check if ports (4000 for Node.js, 3306 for MySQL) are in use.
-- **Form Not Submitting**: Ensure the `action` URL in the HTML form points to the correct Node.js server address.
+- **Form Not Submitting**: Ensure the `action` URL or fetch URL in the HTML form points to the correct Node.js server address.
 
 ### Logs:
 - View Node.js app logs:
