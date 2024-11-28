@@ -5,6 +5,8 @@ services:
     build: .
     ports:
       - "4000:4000"
+    volumes:
+      - C:/Users/lemon/HTMLS/intranet-server:/usr/src/app
     environment:
       DB_HOST: db
       DB_USER: root

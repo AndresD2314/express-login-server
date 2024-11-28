@@ -2,6 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -15,11 +16,9 @@ app.use(cors({
 
 app.options('*', cors());
 
-// Middleware to parse JSON and URL-encoded form data
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MySQL database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -27,7 +26,6 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME || 'credentials',
 });
 
-// Connect to MySQL
 db.connect((err) => {
     if (err) {
         console.error('Error connecting to MySQL:', err);
@@ -36,7 +34,6 @@ db.connect((err) => {
     console.log('Connected to MySQL database.');
 });
 
-// Route to handle saving username and password
 app.post('/save-credentials', (req, res) => {
     const { username, password } = req.body;
 
@@ -55,7 +52,19 @@ app.post('/save-credentials', (req, res) => {
     });
 });
 
-// Start the server
+
+app.get('/download-file', (req, res) => {
+    const filePath = path.join(__dirname, 'Lab_Human-Vuln-GoPshish (1).pdf'); 
+    console.log('Attempting to download:', filePath); 
+
+    res.download(filePath, 'Lab_Human-Vuln-GoPshish(1).pdf', (err) => {
+        if (err) {
+            console.error('Error sending file:', err);
+            res.status(500).send('Error downloading file.');
+        }
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
