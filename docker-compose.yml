@@ -8,14 +8,7 @@ services:
     volumes:
       - C:/Users/lemon/HTMLS/intranet-server:/usr/src/app
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: 123
-      DB_NAME: credentials
       PORT: 4000
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - app-network
     healthcheck:
@@ -23,24 +16,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  db:
-    image: mysql:latest
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: credentials
-    ports:
-      - "3306:3306"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
   app-network:
